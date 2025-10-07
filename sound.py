@@ -11,13 +11,34 @@ Authors:
 2) Dan Zingaro @ UToronto
 """
 
-import math
-import os
-import sounddevice
+import math, os, time
 import numpy
 import scipy.io.wavfile
 import matplotlib.pyplot as pp
 
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1' # suppress the "welcome" message
+import pygame
+
+# initialize pygame, which will be used to play the sounds to the speakers or
+# headphones
+pygame.init()
+
+
+class SoundAlreadyPlayingError(Exception):
+    """ Custom exception class to indicate a sound is already playing when you
+    try to play it. """
+    pass
+
+class SoundNotPlayingError(Exception):
+    """ Custom exception class that indicates the sound that is trying to be
+    stopped is not currently playing. """
+    pass
+
+class InvalidSampleRateError(Exception):
+    """ Custom exception class that indicates that the sound attempting to be
+    played cannot because its sample rate does not match that of another
+    currently playing sound. """
+    pass
 
 """
 The Sample classes support the Sound class and allow manipulation of
@@ -113,6 +134,9 @@ class StereoSample():
     def left(self, new_left_val):
         if not isinstance(new_left_val, int):
             raise TypeError("Channel value must be an int")
+    
+        # Clip the value to the range of int16
+        new_left_val = max(-32768, min(32767, new_left_val))
 
         self.__all_samples[self.__index, 0] = new_left_val
 
@@ -127,6 +151,9 @@ class StereoSample():
     def right(self, new_right_val):
         if not isinstance(new_right_val, int):
             raise TypeError("Channel value must be an int")
+
+        # Clip the value to the range of int16
+        new_right_val = max(-32768, min(32767, new_right_val))
 
         self.__all_samples[self.__index, 1] = int(new_right_val)
 
@@ -192,6 +219,7 @@ class Sound():
         else:
             self.__channels = self.__samples.shape[1]
         self.__sample_encoding = self.__samples.dtype
+        self.__pygame_channel = None
 
 
     def __eq__ (self, other):
@@ -400,16 +428,48 @@ class Sound():
 
         Raises:
             IndexError: If start_index or end_index are out of range.
+            SoundAlreadyPlayingError: If the sound is already playing
+            InvalidSampleRateError: If the sample rate of this sound does not
+                match the sample rate of another sound currently being played
         """
+
+        if self.__pygame_channel is not None and self.__pygame_channel.get_busy():
+            raise SoundAlreadyPlayingError()
+        elif self.__pygame_channel is not None:
+            # Sound has finished playing, so remove its channel
+            self.__pygame_channel = None
 
         player = self.copy()
         player.crop(start_index, end_index)
-        sounddevice.play(player.__samples, samplerate=self.__sample_rate)
+
+        current_mixer = pygame.mixer.get_init()
+        if current_mixer is None:
+            pygame.mixer.init(self.__sample_rate, -16, 2, 4096)
+        else:
+            mixer_sample_rate = current_mixer[0]
+            if self.__sample_rate != mixer_sample_rate:
+                if pygame.mixer.get_busy():
+                    raise InvalidSampleRateError(f"Sound sample rate ({self.__sample_rate}) does not match rate of playing sound ({mixer_sample_rate})")
+                else:
+                    pygame.mixer.quit()
+                    pygame.mixer.init(self.__sample_rate, -16, 2, 4096)
+
+        sample_data = player.__samples.flatten()
+        sound_to_play = pygame.mixer.Sound(sample_data.tobytes())
+        self.__pygame_channel = sound_to_play.play()
 
 
     def stop(self):
-        """Stop playing of this (and all other) sound."""
-        sounddevice.stop()
+        """Stop playing of this sound.
+
+        Raises:
+            SoundNotPlayingError: If the current sound is not playing.
+        """
+        if self.__pygame_channel is None or not self.__pygame_channel.get_busy():
+            raise SoundNotPlayingError()
+
+        self.__pygame_channel.stop()
+        self.__pygame_channel = None
 
 
     @property
@@ -766,16 +826,17 @@ def save_as(snd, filename):
     snd.save_as(filename)
 
 
-def stop():
-    """Stop playing Sound snd."""
+def stop_all():
+    """Stop playing all sounds."""
 
-    sounddevice.stop()
+    pygame.mixer.stop()
 
 
-def wait_until_played():
+def wait_until_all_played():
     """Waits until all sounds are done playing."""
 
-    sounddevice.wait()
+    while pygame.mixer.get_busy():
+        time.sleep(0.1)
 
 
 """

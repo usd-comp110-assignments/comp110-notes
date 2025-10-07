@@ -4,9 +4,58 @@ Module: comp110_lab06
 Exercises from lab 06, dealing with string accumualators.
 """
 
+import sound
+
+def repeater(note_name, times):
+    """
+    Creates a song that is a note repeated some number of times.
+
+    Parameters:
+    note_name (type: str): The name of the note (e.g. 'C')
+    times (type: int): How many times to repeat the note.
+
+    Returns:
+    (type: Sound) Song with note_name repeated numerous times.
+    """
+    song = sound.create_silent_sound(1)
+    
+    for i in range(times):
+        song = song + sound.Note(note_name, 44100)
+
+    return song
+
+
+def mix_sounds(snd1,snd2):
+    """
+    Takes in two sounds and mixes them together to return this new mixed
+    sound object.
+
+    Parameters:
+    snd1 (sound) - original sound object to be mixed with snd2
+    snd2 (sound) - original sound object to be mixed with snd1
+
+    Return:
+    (sound) - mixed sound of snd1 and snd2
+    """
+
+    if XXX:
+        longer_snd = XXX
+        shorter_snd = XXX
+    else:
+        longer_snd = XXX
+        shorter_snd = XXX
+    
+    for i in range(len(XXX)):
+        mix_sample = XXX[i]
+        other_sample = XXX[i]
+        mix_sample.left = mix_sample.left + other_sample.left
+        mix_sample.right = mix_sample.right + other_sample.right
+    
+    return XXX
+
 
 def create_edited_string(text_with_edit_marks):
-    """ Function that returns a sting with editing applied. """
+    """ Function that returns a string with editing applied. """
 
     final_str = ""
 
@@ -32,8 +81,10 @@ def test_create_edited_string():
     test_cases.append("This is my ^roar!s")
     test_cases.append("You need to _CALM DOWN")
     test_cases.append("You need to _CALM ^down")
-    test_cases.append("Please give me some ^f!lood")
+    test_cases.append("Please give me some _F!LOOD")
     test_cases.append("Interesting _result")
+    test_cases.append("I am !sc!hool")
+    test_cases.append("_SHHH!H ^I am trying _to sleep")
 
     # define a list with the expected results based on inputs
     solutions = []
@@ -43,8 +94,10 @@ def test_create_edited_string():
     solutions.append("This is my ROAR")
     solutions.append("You need to calm down")
     solutions.append("You need to calm DOWN")
-    solutions.append("Please give me some FOOD")
+    solutions.append("Please give me some food")
     solutions.append("Interesting result")
+    solutions.append("I am cool")
+    solutions.append("shhh I AM TRYING to sleep")
 
     num_passed = 0
     num_failed = 0
