@@ -222,6 +222,17 @@ class Sound():
         self.__pygame_channel = None
 
 
+    @property
+    def samples(self):
+        """This sound's array of samples."""
+
+        return self.__samples
+
+
+    @samples.setter
+    def samples(self, sound_samples):
+        self.__samples = sound_samples
+    
     def __eq__ (self, other):
         """
         Compares this Sound with another one.
@@ -476,6 +487,10 @@ class Sound():
     def sample_rate(self):
         """(int) The number of samples per second for this sound."""
         return self.__sample_rate
+    
+    @sample_rate.setter
+    def sample_rate(self, new_sample_rate):
+        self.__sample_rate = new_sample_rate
 
 
     def __getitem__(self, index):
@@ -522,6 +537,15 @@ class Sound():
     def get_channels(self):
         """Return the number of channels in this sound."""
         return self.__channels
+    
+    @property
+    def channels(self):
+        """(int) The number of channels in this sound."""
+        return self.__channels
+
+    @channels.setter
+    def channels(self, num_channels):
+        self.__channels = num_channels
 
 
     def __set_filename(self, filename=None):
@@ -661,7 +685,7 @@ class Note(Sound):
             raise ValueError("Invalid note:", note)
 
         freq = int(self.frequencies[note] * (2.0 ** octave))
-        samples = create_sine_wave(freq, self.default_amp, note_length)
+        samples = create_sine_wave(freq, self.default_amp, int(note_length))
 
         super().__init__(samples=(44100, samples))
 
