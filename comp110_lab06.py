@@ -7,15 +7,14 @@ Exercises from lab 06, dealing with string accumualators.
 import sound
 
 def repeater(note_name, times):
-    """
-    Creates a song that is a note repeated some number of times.
+    """Creates a song that is a note repeated some number of times.
 
-    Parameters:
-    note_name (type: str): The name of the note (e.g. 'C')
-    times (type: int): How many times to repeat the note.
+    Args:
+        note_name (type: str): The name of the note (e.g. 'C')
+        times (type: int): How many times to repeat the note.
 
     Returns:
-    (type: Sound) Song with note_name repeated numerous times.
+        Sound: Song with note_name repeated numerous times.
     """
     song = sound.create_silent_sound(1)
     
@@ -26,16 +25,15 @@ def repeater(note_name, times):
 
 
 def mix_sounds(snd1,snd2):
-    """
-    Takes in two sounds and mixes them together to return this new mixed
+    """Takes in two sounds and mixes them together to return this new mixed
     sound object.
 
-    Parameters:
-    snd1 (sound) - original sound object to be mixed with snd2
-    snd2 (sound) - original sound object to be mixed with snd1
+    Args:
+        snd1 (Sound) - original sound object to be mixed with snd2
+        snd2 (Sound) - original sound object to be mixed with snd1
 
     Return:
-    (sound) - mixed sound of snd1 and snd2
+        sound: mixed sound of snd1 and snd2
     """
 
     if XXX:
@@ -55,7 +53,7 @@ def mix_sounds(snd1,snd2):
 
 
 def create_edited_string(text_with_edit_marks):
-    """ Function that returns a string with editing applied. """
+    """Function that returns a string with editing applied."""
 
     final_str = ""
 
@@ -67,10 +65,9 @@ def create_edited_string(text_with_edit_marks):
 
 
 def test_create_edited_string():
-    """
-    Function that tests the create_edited_string function.
+    """Function that tests the create_edited_string function.
 
-    Do not modify this function in any way.
+    DO NOT modify this function in any way.
     """
 
     # define a list with our test inputs
