@@ -42,6 +42,8 @@ def mix_sounds(snd1,snd2):
     else:
         longer_snd = XXX
         shorter_snd = XXX
+
+    mixed_snd = sound.copy(XXX)
     
     for i in range(len(XXX)):
         mix_sample = XXX[i]
